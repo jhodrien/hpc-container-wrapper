@@ -4,7 +4,7 @@ set -u
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source $SCRIPT_DIR/common_functions.sh
 source $CW_BUILD_TMPDIR/_vars.sh
-SINGULARITY_BIND=""
+APPTAINER_BIND=""
 
 
 
@@ -30,38 +30,38 @@ else
     _DIRS=($(ls -1 / | awk '!/dev/' | sed 's/^/\//g' ))
 fi
 for d in "${_DIRS[@]}"; do
-    if [[ -z "$SINGULARITY_BIND" ]];then
-        test -d $d && export SINGULARITY_BIND="$d"
+    if [[ -z "$APPTAINER_BIND" ]];then
+        test -d $d && export APPTAINER_BIND="$d"
     else
-        test -d $d && export SINGULARITY_BIND="$SINGULARITY_BIND,$d"
+        test -d $d && export APPTAINER_BIND="$APPTAINER_BIND,$d"
     fi
 done
-SINGULARITY_BIND="$SINGULARITY_BIND,/tmp"
+APPTAINER_BIND="$APPTAINER_BIND,/tmp"
 # By default we want to disable the user condarc as that
 # might interfere with the installation
 if [[ ! ${CW_ENABLE_CONDARC+defined} ]]; then
     echo "pkgs_dirs: 
         - $CW_INSTALLATION_PATH/miniconda/pkgs
     " > $PWD/_inst_dir/condarc_override
-    SINGULARITY_BIND="$SINGULARITY_BIND,$PWD/_inst_dir/condarc_override:$(readlink -f $HOME/.condarc)"
+    APPTAINER_BIND="$APPTAINER_BIND,$PWD/_inst_dir/condarc_override:$(readlink -f $HOME/.condarc)"
 fi
-export SINGULARITY_BIND
+export APPTAINER_BIND
 echo "export install_root=$CW_INSTALLATION_PATH" >> _extra_envs.sh
 echo "export install_root=$CW_INSTALLATION_PATH" >> _vars.sh
 export install_root=$CW_INSTALLATION_PATH
 
 if [[ "$CW_UPDATE_INSTALLATION" == "yes" ]];then
     _CONTAINER_EXEC="singularity --silent exec -B _deploy/$CW_SQFS_IMAGE:$CW_SOURCE_MOUNT_POINT:image-src=/ _deploy/$CW_CONTAINER_IMAGE"
-    export SINGULARITY_BIND="$SINGULARITY_BIND,$PWD/_inst_dir:$CW_INSTALLATION_PATH,$_inst_path/_bin:$_inst_path/bin"
+    export APPTAINER_BIND="$APPTAINER_BIND,$PWD/_inst_dir:$CW_INSTALLATION_PATH,$_inst_path/_bin:$_inst_path/bin"
     print_info "Copying installation to writable area, might take a while" 1
     print_info "$(readlink -f $CW_INSTALLATION_PREFIX)" 1
     $_CONTAINER_EXEC cp -a $CW_SOURCE_MOUNT_POINT/. $CW_INSTALLATION_PATH
 elif [[ "$CW_MODE" == "wrapdisk" ]];then
-    export SINGULARITY_BIND="$SINGULARITY_BIND,$PWD/_inst_dir:$CW_INSTALLATION_PATH,$CW_WRAP_SRC:$CW_SOURCE_MOUNT_POINT"
+    export APPTAINER_BIND="$APPTAINER_BIND,$PWD/_inst_dir:$CW_INSTALLATION_PATH,$CW_WRAP_SRC:$CW_SOURCE_MOUNT_POINT"
     _CONTAINER_EXEC="singularity --silent exec _deploy/$CW_CONTAINER_IMAGE"
     
 else
-    export SINGULARITY_BIND="$SINGULARITY_BIND,$PWD/_inst_dir:$CW_INSTALLATION_PATH"
+    export APPTAINER_BIND="$APPTAINER_BIND,$PWD/_inst_dir:$CW_INSTALLATION_PATH"
     _CONTAINER_EXEC="singularity --silent exec _deploy/$CW_CONTAINER_IMAGE"
 fi
 cp ./_sing_inst_script.sh _pre_install.sh _post_install.sh _inst_dir 

@@ -247,7 +247,7 @@ How verbosely to report program actions
 - Keep container name based on src name
 
 ## Notes
-`SINGULARITY_BIND` handled after `-B`
+`APPTAINER_BIND` handled after `-B`
 ordering within both matter! -> nested bind mounts possible.
 Note that while loop devices can be mounted on bind mounts,
 any extra bind mounts will be applied after extra loop device (image mounts) 

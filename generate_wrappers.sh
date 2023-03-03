@@ -1,5 +1,5 @@
 #!/bin/bash
-SINGULARITY_BIND=""
+APPTAINER_BIND=""
 set -e
 set -u 
 
@@ -96,7 +96,7 @@ if [[ ! \${_CW_IN_CONTAINER+defined} && \${SINGULARITY_NAME+defined} ]] ;then
     unset SINGULARITY_COMMAND
     unset SINGULARITY_NAME
     unset SINGULARITY_ENVIRONMENT
-    unset SINGULARITY_BIND
+    unset APPTAINER_BIND
     unset SINGULARITY_CONTAINER
 
     unset APPTAINER_NAME
@@ -109,25 +109,25 @@ fi
 " >> _deploy/common.sh
 echo "
 for d in \"\${_DIRS[@]}\"; do
-    if [[ -z \"\$SINGULARITY_BIND\" ]];then
-`        `test -d \$d && export SINGULARITY_BIND=\"\$d\"
+    if [[ -z \"\$APPTAINER_BIND\" ]];then
+`        `test -d \$d && export APPTAINER_BIND=\"\$d\"
     else
-        test -d \$d && export SINGULARITY_BIND=\"\$SINGULARITY_BIND,\$d\"
+        test -d \$d && export APPTAINER_BIND=\"\$APPTAINER_BIND,\$d\"
     fi
 done
 if [[ \"\${TMPDIR+defined}\" ]];then
-    SINGULARITY_BIND=\"\$SINGULARITY_BIND,\$TMPDIR,\$TMPDIR:/tmp\"
+    APPTAINER_BIND=\"\$APPTAINER_BIND,\$TMPDIR,\$TMPDIR:/tmp\"
 fi
-SINGULARITY_BIND=\"\$SINGULARITY_BIND,\$( /usr/bin/readlink -f \$_C_DIR/_bin):\$( /usr/bin/readlink -f \$_C_DIR/bin)\"" >> _deploy/common.sh
+APPTAINER_BIND=\"\$APPTAINER_BIND,\$( /usr/bin/readlink -f \$_C_DIR/_bin):\$( /usr/bin/readlink -f \$_C_DIR/bin)\"" >> _deploy/common.sh
 # The above readlink is only needed as a workaround for Lumi
 # where some folders are symlinked to lustre mount points
 if [[ "$CW_MODE" == "wrapcont" ]];then
-    echo "export SINGULARITY_BIND" >> _deploy/common.sh
+    echo "export APPTAINER_BIND" >> _deploy/common.sh
 else
-    echo "export SINGULARITY_BIND=\$SINGULARITY_BIND,\$DIR/../\$SQFS_IMAGE:\$INSTALLATION_PATH:image-src=/" >> _deploy/common.sh
+    echo "export APPTAINER_BIND=\$APPTAINER_BIND,\$DIR/../\$SQFS_IMAGE:\$INSTALLATION_PATH:image-src=/" >> _deploy/common.sh
 fi
 echo "if [[ \${CW_EXTRA_BIND_MOUNTS+defined} && \"$CW_ISOLATE\" == \"no\" ]]; then
-    export SINGULARITY_BIND=\$SINGULARITY_BIND,\$(echo \$CW_EXTRA_BIND_MOUNTS |  sed \"s@[^,]*:\$INSTALLATION_PATH:image-src=/@@g\")
+    export APPTAINER_BIND=\$APPTAINER_BIND,\$(echo \$CW_EXTRA_BIND_MOUNTS |  sed \"s@[^,]*:\$INSTALLATION_PATH:image-src=/@@g\")
 fi" >> _deploy/common.sh
 
 

@@ -72,12 +72,12 @@ t_run 'MyProg/bin/_debug_exec S/bin/snakemake --help |  grep "usage: snakemake" 
 export PATH=$PWD/Gdal/bin:$PATH
 t_run "MyProg/bin/_debug_exec gdaladdo --help-general | grep -q 'Generic GDAL utility command options'" "Multi composition works"
 t_run 'MyProg/bin/_debug_exec S/bin/snakemake -j 1' "Nested composition works"
-t_run 'MyProg/bin/_debug_exec bash -c "echo \$SINGULARITY_BIND" | grep -q "/$(echo $PWD | cut -d "/" -f2),"' "Top mount point is not excluded"
+t_run 'MyProg/bin/_debug_exec bash -c "echo \$APPTAINER_BIND" | grep -q "/$(echo $PWD | cut -d "/" -f2),"' "Top mount point is not excluded"
 mkdir 2.1.0
 t_run 'wrap-container -w /whitebox_tools docker://crazyzlj/whitebox-tools:2.1.0 --prefix 2.1.0' "Wrap container from external source" 
 t_run "2.1.0/bin/whitebox_tools --help" "Using sh if bash not available for wrap container"
 t_run 'Gdal/bin/_debug_exec 2.1.0/bin/whitebox_tools --help  | grep  "wrapper called from another container" -q' "Wrapped container gives error when cross called"
-res=$(2.1.0/bin/_debug_exec sh -c "echo \$SINGULARITY_BIND" | grep -q -- "image-src")
+res=$(2.1.0/bin/_debug_exec sh -c "echo \$APPTAINER_BIND" | grep -q -- "image-src")
 t_run "test -z $res" "No extra bind mounts into wrapped container"
 t_run "grep -q $(git describe --tags) 2.1.0/share/VERSION.yml" "Version information saved"
 

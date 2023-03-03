@@ -152,8 +152,8 @@ with open(build_dir+"/_vars.sh",'a+') as f:
                 # no point in exporting arrays
                 f.write("CW_{}=({})\n".format(k.upper()," ".join(['"'+os.path.expandvars(str(elem))+'"' for elem in v ] )))
 
-    f.write("export SINGULARITY_TMPDIR={}\n".format(build_dir))
-    f.write("export SINGULARITY_CACHEDIR={}\n".format(os.path.expandvars(full_conf["build_tmpdir_base"])))
+    f.write("export APPTAINER_TMPDIR={}\n".format(build_dir))
+    f.write("export APPTAINER_CACHEDIR={}\n".format(os.path.expandvars(full_conf["build_tmpdir_base"])))
 
     
 
